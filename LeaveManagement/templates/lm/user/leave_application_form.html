@@ -3,7 +3,7 @@
 {% block content %}
 
 
-<form class="form-horizontal">
+<form class="form-horizontal" method="POST">{% csrf_token %}
   <fieldset>
     <legend>Leave Application Form</legend>
       <div class="form-group">
@@ -32,18 +32,34 @@
       <div class="form-group">
         <label for="num_of_days" class="col-lg-2 control-label">Number Of Days</label>
         <div class="col-lg-3">
-            <input class="form-control" id="num_of_days" name="num_of_days"  type="number">
+            <input class="form-control" id="num_of_days" name="num_of_days"  type="number" value="2" min="1">
         </div>
       </div>
       <div class="form-group">
         <label for="start_date" class="col-lg-2 control-label">Start Date</label>
         <div class="col-lg-3">
-            <input class="form-control" id="start_date" name="start_date"  type="date">
+            <input class="form-control" id="start_date" name="start_date"  type="datetime" onblur="calculate_date()">
+        </div>
+      </div>
+      <!--<div class="form-group">-->
+        <!--<label for="end_date" class="col-lg-2 control-label">End Date</label>-->
+        <!--<div class="col-lg-3">-->
+            <!--<input class="form-control" id="end_date" name="end_date"  type="datetime" onblur="calculate_date()">-->
+        <!--</div>-->
+      <!--</div>-->
+      <div class="form-group">
+        <div class="col-lg-10 col-lg-offset-2">
+          <button type="reset" class="btn btn-default">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </div>
 
   </fieldset>
 </form>
 
+
+<script>
+
+</script>
 
 {% endblock %}
