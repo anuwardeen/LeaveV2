@@ -1,0 +1,216 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+
+class EmployeeDetail(AbstractBaseUser, PermissionsMixin):
+    class Meta:
+        app_label = 'LeaveManagement'
+        db_table = "UserInfo"
+    emp_id = models.AutoField(primary_key=True)
+    username = models.CharField(_('username'), max_length=30, unique=True,
+                                help_text=_('Required. 30 characters or fewer. Letters, numbers and '
+    '@/./+/-/_ characters'),
+
+    validators=[validators.RegexValidator(re.compile('^[ \w.@+-]+$'),
+    _('Enter a valid username.'), 'invalid')
+    ])
+    password = models.CharField(max_length=30)
+    emp_first_name = models.CharField(_('full name'), max_length=25, blank=True)
+    emp_last_name = models.CharField(_('short name'), max_length=25, blank=True)
+    email = models.EmailField(_('email address'), max_length=100, unique=True)
+    is_staff = models.BooleanField(_('staff status'), default=False,
+    help_text=_('Designates whether the user can log into this admin '
+    'site.'))
+    is_active = models.BooleanField(_('active'), default=True,
+    help_text=_('Designates whether this user should be treated as '
+    'active. Unselect this instead of deleting accounts.'))
+    is_superuser = models.BooleanField(_('super user'), default=False,
+    help_text=_('Designates whether this user should be treated as '
+    'active. Unselect this instead of deleting accounts.'))
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    objects = UserManager()
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+    def get_full_name(self):
+    return self.emp_first_name + " " + self.emp_last_name
+    def get_short_name(self):
+    return self.emp_first_name
+    def __str__(self):
+    return self.username
+
+
+
+
+class LeaveRecordDetail(models.Model):
+    employee = models.ForeignKey(User, related_name='employee', on_delete=models.CASCADE, unique=True)
+    reporting_manager = models.ForeignKey(User, related_name='reporting_manager' ,on_delete=models.CASCADE)
+    sick_leaves = models.IntegerField(default=14)
+    earned_leaves = models.IntegerField(default=14)
+    personal_leaves = models.IntegerField(default=14)
+
+    def __str__(self):
+        return str(self.employee) + " " + str(self.reporting_manager)
+
+    class Meta:
+        db_table = 'LeaveRecord'
+
+
+
+class LeaveApplication(models.Model):
+
+    TYPES_OF_LEAVES = (
+        ('SL', 'SickLeave'),
+        ('EL', 'EarnedLeave'),
+        ('PL', 'PersonalLeave')
+    )
+
+    LEAVE_STATUS = (
+        ('A', 'Approved'),
+        ('R', 'Rejected')
+    )
+
+    leave_id = models.AutoField(primary_key=True)
+    applicant = models.CharField(max_length=30)
+    # applicant = models.ForeignKey(LeaveRecordDetail, to_field='employee',related_name='applicant', on_delete=models.CASCADE, unique=False)
+    approver = models.CharField(max_length=30)
+    # approver = models.ForeignKey(LeaveRecordDetail, to_field='reporting_manager' ,related_name='approver', on_delete=models.CASCADE, unique=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    responded_on = models.DateTimeField(auto_now=True, null=True)
+    leave_type = models.CharField(max_length=2, choices=TYPES_OF_LEAVES)
+    number_of_days= models.IntegerField()
+    from_date = models.DateField()
+    to_date = models.DateField()
+    leave_status = models.CharField(max_length=1, choices=LEAVE_STATUS, default='R')
+    additional_message = models.TextField(max_length=200)
+
+    def __str__(self):
+        return self.applicant + str(self.leave_type)
+
+    class Meta:
+        db_table = 'LeaveApplication'
+
+
+
+
+ #############################################################################################################################################
+
+
+
+import re
+from django.db import models
+from django.core import validators
+from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import UserManager
+
+
+class EmployeeDetail(AbstractUser, PermissionsMixin):
+
+    class Meta:
+        app_label = 'LeaveManagement'
+        db_table = "EmployeeDetail"
+
+    emp_id = models.AutoField(primary_key=True)
+
+    username = models.CharField(_('username'), max_length=30, unique=True,
+        help_text=_('Required. 30 characters or fewer. Letters, numbers and '
+    '@/./+/-/_ characters'),
+
+
+    validators=[
+    validators.RegexValidator(re.compile('^[ \w.@+-]+$'),
+    _('Enter a valid username.'), 'invalid')
+    ])
+
+    # password = models.CharField(max_length=30)
+
+    emp_first_name = models.CharField(_('full name'), max_length=25, blank=True)
+
+    emp_last_name = models.CharField(_('short name'), max_length=25, blank=True)
+
+    email = models.EmailField(_('email address'), max_length=100, unique=True)
+
+    is_staff = models.BooleanField(_('staff status'), default=False,
+    help_text=_('Designates whether the user can log into this admin '
+    'site.'))
+
+    is_active = models.BooleanField(_('active'), default=True,
+    help_text=_('Designates whether this user should be treated as '
+    'active. Unselect this instead of deleting accounts.'))
+
+    is_superuser = models.BooleanField(_('super user'), default=False,
+    help_text=_('Designates whether this user should be treated as '
+    'active. Unselect this instead of deleting accounts.'))
+
+
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+
+    def get_full_name(self):
+        return self.emp_first_name + " " + self.emp_last_name
+
+    def get_short_name(self):
+        return self.emp_first_name
+
+    def __str__(self):
+        return self.username
+
+
+#
+# class LeaveRecordDetail(models.Model):
+#     employee = models.ForeignKey(EmployeeDetail, related_name='employee', on_delete=models.CASCADE, unique=True)
+#     reporting_manager = models.ForeignKey(EmployeeDetail, related_name='reporting_manager' ,on_delete=models.CASCADE)
+#     sick_leaves = models.IntegerField(default=14)
+#     earned_leaves = models.IntegerField(default=14)
+#     personal_leaves = models.IntegerField(default=14)
+#
+#     def __str__(self):
+#         return str(self.employee) + " " + str(self.reporting_manager)
+#
+#     class Meta:
+#         db_table = 'LeaveRecord'
+#
+#
+#
+# class LeaveApplication(models.Model):
+#
+#     TYPES_OF_LEAVES = (
+#         ('SL', 'SickLeave'),
+#         ('EL', 'EarnedLeave'),
+#         ('PL', 'PersonalLeave')
+#     )
+#
+#     LEAVE_STATUS = (
+#         ('A', 'Approved'),
+#         ('R', 'Rejected')
+#     )
+#
+#     leave_id = models.AutoField(primary_key=True)
+#     applicant = models.CharField(max_length=30)
+#     # applicant = models.ForeignKey(LeaveRecordDetail, to_field='employee',related_name='applicant', on_delete=models.CASCADE)
+#     approver = models.CharField(max_length=30)
+#     # approver = models.ForeignKey(LeaveRecordDetail, to_field='reporting_manager' ,related_name='approver', on_delete=models.CASCADE)
+#     created_on = models.DateTimeField(auto_now_add=True)
+#     responded_on = models.DateTimeField(auto_now=True, null=True)
+#     leave_type = models.CharField(max_length=2, choices=TYPES_OF_LEAVES)
+#     number_of_days= models.IntegerField()
+#     from_date = models.DateField()
+#     to_date = models.DateField()
+#     leave_status = models.CharField(max_length=1, choices=LEAVE_STATUS, default='R')
+#     additional_message = models.TextField(max_length=200)
+#
+#     def __str__(self):
+#         return self.applicant + str(self.leave_type)
+#
+#     class Meta:
+#         db_table = 'LeaveApplication'
+#
+#
+
