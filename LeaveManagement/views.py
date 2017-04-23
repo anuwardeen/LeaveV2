@@ -50,5 +50,14 @@ def responding_to_leave_application(request):
 
     if request.method == "GET":
         applications = LeaveApplication.objects.filter(approver = request.user)
-        print(applications)
+        # leave_type = [applications[i].get_leave_type_display() for i in applications]
+        # print(applications)
+        # forms =[ LeaveApplicationForm(applications)]
+        # for i in forms:
+        #     print(i)
+
         return render(request, "lm/responding_to_application.html", {"applications":applications})
+
+    if request.method == "POST":
+        print(request.POST.get('submit'))
+        return HttpResponse("askjfnksdjf")
