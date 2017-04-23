@@ -40,7 +40,12 @@
 
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class=""><a href="#">Leave Management App</a></li>
+          {% if not request.user.is_superuser%}
+            <li class=""><a href="{% url 'leave_application' %}">Apply</a></li>
+          {% endif %}
+          {% if request.user.is_staff %}
+            <li><a href="{% url 'responding_to_leave' %}">Respond</a></li>
+          {% endif %}
         <!--<li ></li>-->
       </ul>
       <form class="navbar-form navbar-left" role="search">
@@ -55,8 +60,9 @@
     </div>
   </div>
 </nav>
-<a href="{% url 'leave_application' %}"> leave form</a>
-{% block content %}
+
+
+    {% block content %}
 {% endblock %}
 
 </body>

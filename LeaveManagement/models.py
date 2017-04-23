@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-
-
 class LeaveRecordDetail(models.Model):
     employee = models.ForeignKey(User, related_name='employee', on_delete=models.CASCADE)
     reporting_manager = models.ForeignKey(User, related_name='reporting_manager' ,on_delete=models.CASCADE)
@@ -57,6 +55,3 @@ class LeaveApplication(models.Model):
             super(LeaveApplication,self).save()
         else:
             raise Exception
-
-
-
