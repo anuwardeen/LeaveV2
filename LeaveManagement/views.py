@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 from django.contrib.auth.decorators import login_required,user_passes_test
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .forms import *
 
 @login_required
@@ -42,22 +42,38 @@ def applying_for_leave(request):
             else:
                 leave_record.sick_leaves -= num_of_days
                 leave_record.save()
-            return HttpResponse('skjfdnkjsdnkjsd')
+            return HttpResponseRedirect(reverse('index'))
 
 
 @login_required
 def responding_to_leave_application(request):
 
     if request.method == "GET":
-        applications = LeaveApplication.objects.filter(approver = request.user)
-        # leave_type = [applications[i].get_leave_type_display() for i in applications]
-        # print(applications)
-        # forms =[ LeaveApplicationForm(applications)]
-        # for i in forms:
-        #     print(i)
-
+        applications = LeaveApplication.objects.filter(approver = request.user, leave_status = 'U')
         return render(request, "lm/responding_to_application.html", {"applications":applications})
 
     if request.method == "POST":
-        print(request.POST.get('submit'))
-        return HttpResponse("askjfnksdjf")
+        leave_id = request.POST.get('leave_id')
+        applicant = request.POST.get('applicant')
+        num_of_days = request.POST.get('number_of_days')
+        leave_type = request.POST.get('leave_type')
+        response_type = request.POST.get('submit')
+        leave_record = LeaveApplication.objects.get(leave_id=leave_id)
+        user = User.objects.get(first_name = applicant)
+
+        if response_type == "R":
+            employee_record = LeaveRecordDetail.objects.get(employee = user)
+            print(employee_record)
+            if leave_type == 'EL':
+                employee_record.earned_leaves += int(num_of_days)
+                employee_record.save()
+            elif leave_type == 'PL':
+                employee_record.personal_leaves += int(num_of_days)
+                employee_record.save()
+            else:
+                employee_record.sick_leaves += int(num_of_days)
+                employee_record.save()
+        leave_record.leave_status = response_type
+        leave_record.save()
+
+        return HttpResponseRedirect(reverse('responding_to_leave'))

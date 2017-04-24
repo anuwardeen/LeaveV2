@@ -26,8 +26,9 @@ class LeaveApplication(models.Model):
     )
 
     LEAVE_STATUS = (
+        ('U', 'Unresponded'),
         ('A', 'Approved'),
-        ('R', 'Rejected')
+        ('R', 'Rejected'),
     )
 
     leave_id = models.AutoField(primary_key=True)
@@ -39,7 +40,7 @@ class LeaveApplication(models.Model):
     number_of_days= models.IntegerField()
     from_date = models.DateField()
     to_date = models.DateField()
-    leave_status = models.CharField(max_length=1, choices=LEAVE_STATUS, default='R')
+    leave_status = models.CharField(max_length=1, choices=LEAVE_STATUS, default='U')
     additional_message = models.TextField(max_length=200)
 
     def __str__(self):
