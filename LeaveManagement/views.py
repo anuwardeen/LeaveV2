@@ -12,15 +12,8 @@ def applying_for_leave(request):
     leave_record = LeaveRecordDetail.objects.get(employee=request.user)
     applicant = request.user
     approver = leave_record.reporting_manager
-    if request.user.is_superuser:
-        status = 'SA'
-    elif request.user.is_staff :
-        status = 'A'
-    else:
-        status = 'U'
     if request.method == "GET":
-        form = LeaveApplicationForm()
-        return render(request, "lm/leave_application_form.html", {"form":form,"applicant":applicant, "approver":approver,"status":status})
+        return render(request, "lm/leave_application_form.html", {"applicant":applicant, "approver":approver})
 
     if request.method == "POST":
         leave_type = request.POST.get('leave_type')
@@ -31,18 +24,31 @@ def applying_for_leave(request):
         try:
             LeaveApplication.objects.create(applicant = applicant, leave_type = leave_type, approver = approver,  number_of_days = num_of_days,from_date = from_date, to_date = to_date, additional_message = msg)
         except Exception as e:
-            return HttpResponse("Error Occurred")
+            return render(request, "lm/leave_application_form.html", {"applicant": applicant, "approver": approver,"error":"error"})
         else:
             if leave_type == "EL":
                 leave_record.earned_leaves -= num_of_days
-                leave_record.save()
+                try:
+                    leave_record.save()
+                except Exception:
+                    return render(request, "lm/leave_application_form.html",
+                                  {"applicant": applicant, "approver": approver, "error": "error"})
             elif leave_type == "PL":
                 leave_record.personal_leaves -= num_of_days
-                leave_record.save()
+                try:
+                    leave_record.save()
+                except Exception:
+                    return render(request, "lm/leave_application_form.html",
+                                  {"applicant": applicant, "approver": approver, "error": "error"})
             else:
                 leave_record.sick_leaves -= num_of_days
-                leave_record.save()
+                try:
+                    leave_record.save()
+                except Exception:
+                    return render(request, "lm/leave_application_form.html",
+                                  {"applicant": applicant, "approver": approver, "error": "error"})
             return HttpResponseRedirect(reverse('index'))
+
 
 
 @login_required

@@ -1,16 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.validators import MinValueValidator
 
 class LeaveRecordDetail(models.Model):
     employee = models.ForeignKey(User, related_name='employee', on_delete=models.CASCADE)
     reporting_manager = models.ForeignKey(User, related_name='reporting_manager' ,on_delete=models.CASCADE)
-    sick_leaves = models.IntegerField(default=14)
-    earned_leaves = models.IntegerField(default=14)
-    personal_leaves = models.IntegerField(default=14)
+    sick_leaves = models.PositiveIntegerField(default=14, validators=[MinValueValidator(0)])
+    earned_leaves = models.PositiveIntegerField(default=14, validators=[MinValueValidator(0)])
+    personal_leaves = models.PositiveIntegerField(default=14, validators=[MinValueValidator(0)])
 
     def __str__(self):
         return str(self.employee) + " " + str(self.reporting_manager)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if self.sick_leaves < 0 or self.earned_leaves < 0 or self.personal_leaves<0:
+            raise Exception
+        else:
+            super(LeaveRecordDetail,self).save()
 
     class Meta:
         db_table = 'LeaveRecord'
