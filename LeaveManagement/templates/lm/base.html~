@@ -33,7 +33,7 @@
           }
     </script>
 </head>
-<body   background="{% static 'lm/image/bgimage.jpg' %}">
+<body   background="{% static 'lm/image/bgimage.png' %}">
     <nav class="navbar navbar-default">
   <div class="container-fluid">
 
